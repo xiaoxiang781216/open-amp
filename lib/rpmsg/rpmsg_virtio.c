@@ -737,7 +737,8 @@ int rpmsg_init_vdev_with_config(struct rpmsg_virtio_device *rvdev,
 		if (config == NULL) {
 			return RPMSG_ERR_PARAM;
 		}
-		rvdev->config = *config;
+		rvdev->config.h2r_buf_size = config->h2r_buf_size;
+		rvdev->config.r2h_buf_size = config->r2h_buf_size;
 	}
 #else /*!VIRTIO_DEVICE_ONLY*/
 	/* Ignore passed config in the virtio-device-only configuration. */
@@ -754,6 +755,13 @@ int rpmsg_init_vdev_with_config(struct rpmsg_virtio_device *rvdev,
 	vdev->features = rpmsg_virtio_get_features(rvdev);
 	rdev->support_ns = !!(vdev->features & (1 << VIRTIO_RPMSG_F_NS));
 	rdev->support_ack = !!(vdev->features & (1 << VIRTIO_RPMSG_F_ACK));
+
+	if (vdev->features & (1 << VIRTIO_RPMSG_F_BUFSZ)) {
+		rpmsg_virtio_read_config(rvdev,
+			0,
+			&rvdev->config,
+			sizeof(rvdev->config));
+	}
 
 #ifndef VIRTIO_DEVICE_ONLY
 	if (role == RPMSG_HOST) {
