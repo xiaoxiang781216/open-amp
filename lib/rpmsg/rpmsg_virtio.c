@@ -658,12 +658,18 @@ static int rpmsg_virtio_ns_callback(struct rpmsg_endpoint *ept, void *data,
 			if (_ept->name[0] && rdev->support_ack)
 				rpmsg_send_ns_message(_ept,
 						      RPMSG_NS_CREATE_ACK);
+			/* notify application that the endpoint has been bound */
+			if (_ept->ns_bound_cb)
+				_ept->ns_bound_cb(_ept);
 		}
 	} else { /* RPMSG_NS_CREATE_ACK */
 		/* save the received destination address */
 		if (_ept)
 			_ept->dest_addr = dest;
 		metal_mutex_release(&rdev->lock);
+		/* notify application that the endpoint has been bound */
+		if (_ept && _ept->ns_bound_cb)
+			_ept->ns_bound_cb(_ept);
 	}
 
 	return RPMSG_SUCCESS;
