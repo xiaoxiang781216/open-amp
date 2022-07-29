@@ -148,6 +148,15 @@ rpmsg_virtio_create_virtqueues(struct rpmsg_virtio_device *rvdev,
 					callbacks);
 }
 
+static inline int
+rpmsg_virtio_notify_wait(struct rpmsg_virtio_device *rvdev,
+			 struct virtqueue *vq)
+{
+	return rvdev->vdev->func->notify_wait ?
+			rvdev->vdev->func->notify_wait(rvdev->vdev, vq) :
+			RPMSG_ERR_NXIO;
+}
+
 /**
  * rpmsg_virtio_get_buffer_size - get rpmsg virtio buffer size
  *
